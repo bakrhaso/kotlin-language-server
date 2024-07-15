@@ -1,25 +1,25 @@
 package org.javacs.kt.hover
 
+import com.intellij.psi.PsiDocCommentBase
 import org.eclipse.lsp4j.Hover
 import org.eclipse.lsp4j.MarkupContent
 import org.eclipse.lsp4j.Range
-import com.intellij.psi.PsiDocCommentBase
-import org.jetbrains.kotlin.psi.KtExpression
-import org.jetbrains.kotlin.psi.KtCallableDeclaration
+import org.javacs.kt.CompiledFile
+import org.javacs.kt.completion.DECL_RENDERER
+import org.javacs.kt.position.position
+import org.javacs.kt.signaturehelp.getDocString
+import org.javacs.kt.util.findParent
 import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.descriptors.ClassifierDescriptor
-import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.psi.KtCallableDeclaration
+import org.jetbrains.kotlin.psi.KtExpression
+import org.jetbrains.kotlin.psi.KtReferenceExpression
 import org.jetbrains.kotlin.renderer.ClassifierNamePolicy
 import org.jetbrains.kotlin.renderer.DescriptorRenderer
 import org.jetbrains.kotlin.renderer.RenderingFormat
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.calls.callUtil.getType
-import org.javacs.kt.CompiledFile
-import org.javacs.kt.completion.DECL_RENDERER
-import org.javacs.kt.position.position
-import org.javacs.kt.util.findParent
-import org.javacs.kt.signaturehelp.getDocString
 import org.jetbrains.kotlin.utils.IDEAPluginsCompatibilityAPI
 
 fun hoverAt(file: CompiledFile, cursor: Int): Hover? {
@@ -27,35 +27,45 @@ fun hoverAt(file: CompiledFile, cursor: Int): Hover? {
     val javaDoc = getDocString(file, cursor)
     val location = ref.textRange
     val hoverText = DECL_RENDERER.render(target)
-    val hover = MarkupContent("markdown", listOf("```kotlin\n$hoverText\n```", javaDoc).filter { it.isNotEmpty() }.joinToString("\n---\n"))
+    val hover = MarkupContent(
+        "markdown",
+        listOf("```kotlin\n$hoverText\n```", javaDoc).filter { it.isNotEmpty() }.joinToString("\n---\n")
+    )
     val range = Range(
-            position(file.content, location.startOffset),
-            position(file.content, location.endOffset))
+        position(file.content, location.startOffset),
+        position(file.content, location.endOffset)
+    )
     return Hover(hover, range)
 }
 
 private fun typeHoverAt(file: CompiledFile, cursor: Int): Hover? {
     val expression = file.parseAtPoint(cursor)?.findParent<KtExpression>() ?: return null
-    val javaDoc: String = expression.children.mapNotNull { (it as? PsiDocCommentBase)?.text }.map(::renderJavaDoc).firstOrNull() ?: ""
+    val javaDoc: String =
+        expression.children.mapNotNull { (it as? PsiDocCommentBase)?.text }.map(::renderJavaDoc).firstOrNull() ?: ""
     val scope = file.scopeAtPoint(cursor) ?: return null
     val hoverText = renderTypeOf(expression, file.bindingContextOf(expression, scope))
-    val hover = MarkupContent("markdown", listOf("```kotlin\n$hoverText\n```", javaDoc).filter { it.isNotEmpty() }.joinToString("\n---\n"))
+    val hover = MarkupContent(
+        "markdown",
+        listOf("```kotlin\n$hoverText\n```", javaDoc).filter { it.isNotEmpty() }.joinToString("\n---\n")
+    )
     return Hover(hover)
 }
 
 // Source: https://github.com/JetBrains/kotlin/blob/master/idea/src/org/jetbrains/kotlin/idea/codeInsight/KotlinExpressionTypeProvider.kt
 
-private val TYPE_RENDERER: DescriptorRenderer by lazy { DescriptorRenderer.COMPACT.withOptions {
-    textFormat = RenderingFormat.PLAIN
-    classifierNamePolicy = object: ClassifierNamePolicy {
-        override fun renderClassifier(classifier: ClassifierDescriptor, renderer: DescriptorRenderer): String {
-            if (DescriptorUtils.isAnonymousObject(classifier)) {
-                return "<anonymous object>"
+private val TYPE_RENDERER: DescriptorRenderer by lazy {
+    DescriptorRenderer.COMPACT.withOptions {
+        textFormat = RenderingFormat.PLAIN
+        classifierNamePolicy = object : ClassifierNamePolicy {
+            override fun renderClassifier(classifier: ClassifierDescriptor, renderer: DescriptorRenderer): String {
+                if (DescriptorUtils.isAnonymousObject(classifier)) {
+                    return "<anonymous object>"
+                }
+                return ClassifierNamePolicy.SHORT.renderClassifier(classifier, renderer)
             }
-            return ClassifierNamePolicy.SHORT.renderClassifier(classifier, renderer)
         }
     }
-} }
+}
 
 private fun renderJavaDoc(text: String): String {
     val split = text.split('\n')
@@ -79,7 +89,8 @@ private fun renderTypeOf(element: KtExpression, bindingContext: BindingContext):
         }
     }
 
-    val expressionType = bindingContext[BindingContext.EXPRESSION_TYPE_INFO, element]?.type ?: element.getType(bindingContext)
+    val expressionType =
+        bindingContext[BindingContext.EXPRESSION_TYPE_INFO, element]?.type ?: element.getType(bindingContext)
     val result = expressionType?.let { TYPE_RENDERER.renderType(it) } ?: return null
 
     val smartCast = bindingContext[BindingContext.SMARTCAST, element]

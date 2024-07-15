@@ -1,24 +1,24 @@
 package org.javacs.kt
 
+import com.intellij.lang.Language
 import org.javacs.kt.compiler.CompilationKind
-import org.javacs.kt.util.AsyncExecutor
-import org.javacs.kt.util.fileExtension
-import org.javacs.kt.util.filePath
-import org.javacs.kt.util.describeURI
+import org.javacs.kt.database.DatabaseService
 import org.javacs.kt.index.SymbolIndex
 import org.javacs.kt.progress.Progress
-import com.intellij.lang.Language
-import org.javacs.kt.database.DatabaseService
+import org.javacs.kt.util.AsyncExecutor
+import org.javacs.kt.util.describeURI
+import org.javacs.kt.util.fileExtension
+import org.javacs.kt.util.filePath
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.CompositeBindingContext
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
-import kotlin.concurrent.withLock
+import java.net.URI
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.net.URI
 import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 class SourcePath(
     private val cp: CompilerClassPath,
@@ -53,7 +53,8 @@ class SourcePath(
         val isTemporary: Boolean = false, // A temporary source file will not be returned by .all()
         var lastSavedFile: KtFile? = null,
     ) {
-        val extension: String? = uri.fileExtension ?: "kt" // TODO: Use language?.associatedFileType?.defaultExtension again
+        val extension: String? =
+            uri.fileExtension ?: "kt" // TODO: Use language?.associatedFileType?.defaultExtension again
         val isScript: Boolean = extension == "kts"
         val kind: CompilationKind =
             if (path?.fileName?.toString()?.endsWith(".gradle.kts") ?: false) CompilationKind.BUILD_SCRIPT
@@ -115,10 +116,10 @@ class SourcePath(
         }
 
         fun prepareCompiledFile(): CompiledFile =
-                parseIfChanged().apply { compileIfNull() }.let { doPrepareCompiledFile() }
+            parseIfChanged().apply { compileIfNull() }.let { doPrepareCompiledFile() }
 
         private fun doPrepareCompiledFile(): CompiledFile =
-                CompiledFile(content, compiledFile!!, compiledContext!!, module!!, allIncludingThis(), cp, isScript, kind)
+            CompiledFile(content, compiledFile!!, compiledContext!!, module!!, allIncludingThis(), cp, isScript, kind)
 
         private fun allIncludingThis(): Collection<KtFile> = parseIfChanged().let {
             if (isTemporary) (all().asSequence() + sequenceOf(parsed!!)).toList()
@@ -126,14 +127,18 @@ class SourcePath(
         }
 
         // Creates a shallow copy
-        fun clone(): SourceFile = SourceFile(uri, content, path, parsed, compiledFile, compiledContext, module, language, isTemporary)
+        fun clone(): SourceFile =
+            SourceFile(uri, content, path, parsed, compiledFile, compiledContext, module, language, isTemporary)
     }
 
     private fun sourceFile(uri: URI): SourceFile {
         if (uri !in files) {
             // Fallback solution, usually *all* source files
             // should be added/opened through SourceFiles
-            LOG.warn("Requested source file {} is not on source path, this is most likely a bug. Adding it now temporarily...", describeURI(uri))
+            LOG.warn(
+                "Requested source file {} is not on source path, this is most likely a bug. Adding it now temporarily...",
+                describeURI(uri)
+            )
             put(uri, contentProvider.contentOf(uri), null, temporary = true)
         }
         return files[uri]!!
@@ -182,13 +187,13 @@ class SourcePath(
      * Compile the latest version of a file
      */
     fun currentVersion(uri: URI): CompiledFile =
-            sourceFile(uri).apply { compileIfChanged() }.prepareCompiledFile()
+        sourceFile(uri).apply { compileIfChanged() }.prepareCompiledFile()
 
     /**
      * Return whatever is the most-recent already-compiled version of `file`
      */
     fun latestCompiledVersion(uri: URI): CompiledFile =
-            sourceFile(uri).prepareCompiledFile()
+        sourceFile(uri).prepareCompiledFile()
 
     /**
      * Compile changed files
@@ -351,7 +356,7 @@ class SourcePath(
      * Get parsed trees for all .kt files on source path
      */
     fun all(includeHidden: Boolean = false): Collection<KtFile> =
-            files.values
-                .filter { includeHidden || !it.isTemporary }
-                .map { it.apply { parseIfChanged() }.parsed!! }
+        files.values
+            .filter { includeHidden || !it.isTemporary }
+            .map { it.apply { parseIfChanged() }.parsed!! }
 }

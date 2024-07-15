@@ -10,11 +10,11 @@ internal val userHome = Paths.get(System.getProperty("user.home"))
 internal fun isOSWindows() = (File.separatorChar == '\\')
 
 fun findCommandOnPath(name: String): Path? =
-        if (isOSWindows()) windowsCommand(name)
-        else unixCommand(name)
+    if (isOSWindows()) windowsCommand(name)
+    else unixCommand(name)
 
 private fun windowsCommand(name: String) =
-        findExecutableOnPath("$name.cmd")
+    findExecutableOnPath("$name.cmd")
         ?: findExecutableOnPath("$name.bat")
         ?: findExecutableOnPath("$name.exe")
 

@@ -2,10 +2,9 @@ package org.javacs.kt.signaturehelp
 
 import org.eclipse.lsp4j.ParameterInformation
 import org.eclipse.lsp4j.SignatureHelp
-import org.eclipse.lsp4j.MarkupContent
 import org.eclipse.lsp4j.SignatureInformation
-import org.eclipse.lsp4j.jsonrpc.messages.Either
 import org.javacs.kt.CompiledFile
+import org.javacs.kt.LOG
 import org.javacs.kt.completion.DECL_RENDERER
 import org.javacs.kt.completion.identifierOverloads
 import org.javacs.kt.completion.memberOverloads
@@ -19,10 +18,10 @@ import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
-import org.javacs.kt.LOG
 
 fun fetchSignatureHelpAt(file: CompiledFile, cursor: Int): SignatureHelp? {
-    val (signatures, activeSignature, activeParameter) = getSignatureTriplet(file, cursor) ?: return nullResult("No call around ${file.describePosition(cursor)}")
+    val (signatures, activeSignature, activeParameter) = getSignatureTriplet(file, cursor)
+        ?: return nullResult("No call around ${file.describePosition(cursor)}")
     return SignatureHelp(signatures, activeSignature, activeParameter)
 }
 
@@ -135,6 +134,6 @@ private fun activeParameter(call: KtCallExpression, cursor: Int): Int? {
         return 0
     val min = Math.min(args.textRange.startOffset, cursor)
     val max = Math.max(args.textRange.startOffset, cursor)
-    val beforeCursor = text.subSequence(0, max-min)
-    return beforeCursor.count { it == ','}
+    val beforeCursor = text.subSequence(0, max - min)
+    return beforeCursor.count { it == ',' }
 }

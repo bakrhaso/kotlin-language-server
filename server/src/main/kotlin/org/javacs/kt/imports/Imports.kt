@@ -3,18 +3,20 @@ package org.javacs.kt.imports
 import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.Range
 import org.eclipse.lsp4j.TextEdit
+import org.javacs.kt.position.location
 import org.jetbrains.kotlin.lexer.KtKeywordToken
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.psi.*
-import org.javacs.kt.position.location
+import org.jetbrains.kotlin.psi.KtElement
+import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.KtImportDirective
 
 fun getImportTextEditEntry(parsedFile: KtFile, fqName: FqName): TextEdit {
     val imports = parsedFile.importDirectives
     val importedNames = imports
         .mapNotNull { it.importedFqName?.shortName() }
         .toSet()
-    
+
     val pos = findImportInsertionPosition(parsedFile, fqName)
     val prefix = if (importedNames.isEmpty()) "\n\n" else "\n"
     return TextEdit(Range(pos, pos), "${prefix}import ${backtickBultins(fqName)}")

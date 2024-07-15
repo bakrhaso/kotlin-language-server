@@ -2,8 +2,8 @@ private object SignatureHelp {
     fun main(param: String) {
         Target.foo()
         Constructor()
-        Target.multiParam("1", )
-        Target.oneOrTwoArgs("1", )
+        Target.multiParam("1")
+        Target.oneOrTwoArgs("1")
     }
 }
 
@@ -44,5 +44,5 @@ private class Constructor(bar: String) {
      * Construct with an Int
      * @param bar Int param
      */
-    constructor(bar: Int): this(bar.toString())
+    constructor(bar: Int) : this(bar.toString())
 }

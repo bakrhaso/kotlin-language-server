@@ -56,7 +56,8 @@ val Collection<ClassPathResolver>.joined get() = fold(ClassPathResolver.empty) {
 operator fun ClassPathResolver.plus(other: ClassPathResolver): ClassPathResolver = UnionClassPathResolver(this, other)
 
 /** Uses the left-hand classpath if not empty, otherwise uses the right. */
-infix fun ClassPathResolver.or(other: ClassPathResolver): ClassPathResolver = FirstNonEmptyClassPathResolver(this, other)
+infix fun ClassPathResolver.or(other: ClassPathResolver): ClassPathResolver =
+    FirstNonEmptyClassPathResolver(this, other)
 
 /** The union of two class path resolvers. */
 internal class UnionClassPathResolver(val lhs: ClassPathResolver, val rhs: ClassPathResolver) : ClassPathResolver {
@@ -69,14 +70,18 @@ internal class UnionClassPathResolver(val lhs: ClassPathResolver, val rhs: Class
     override val currentBuildFileVersion: Long get() = max(lhs.currentBuildFileVersion, rhs.currentBuildFileVersion)
 }
 
-internal class FirstNonEmptyClassPathResolver(val lhs: ClassPathResolver, val rhs: ClassPathResolver) : ClassPathResolver {
+internal class FirstNonEmptyClassPathResolver(val lhs: ClassPathResolver, val rhs: ClassPathResolver) :
+    ClassPathResolver {
     override val resolverType: String get() = "(${lhs.resolverType} or ${rhs.resolverType})"
     override val classpath get() = lhs.classpath.takeIf { it.isNotEmpty() } ?: rhs.classpath
     override val classpathOrEmpty get() = lhs.classpathOrEmpty.takeIf { it.isNotEmpty() } ?: rhs.classpathOrEmpty
-    override val buildScriptClasspath get() = lhs.buildScriptClasspath.takeIf { it.isNotEmpty() } ?: rhs.buildScriptClasspath
-    override val buildScriptClasspathOrEmpty get() = lhs.buildScriptClasspathOrEmpty.takeIf { it.isNotEmpty() } ?: rhs.buildScriptClasspathOrEmpty
-    override val classpathWithSources get() = lhs.classpathWithSources.takeIf {
-        it.isNotEmpty()
-    } ?: rhs.classpathWithSources
+    override val buildScriptClasspath
+        get() = lhs.buildScriptClasspath.takeIf { it.isNotEmpty() } ?: rhs.buildScriptClasspath
+    override val buildScriptClasspathOrEmpty
+        get() = lhs.buildScriptClasspathOrEmpty.takeIf { it.isNotEmpty() } ?: rhs.buildScriptClasspathOrEmpty
+    override val classpathWithSources
+        get() = lhs.classpathWithSources.takeIf {
+            it.isNotEmpty()
+        } ?: rhs.classpathWithSources
     override val currentBuildFileVersion: Long get() = max(lhs.currentBuildFileVersion, rhs.currentBuildFileVersion)
 }

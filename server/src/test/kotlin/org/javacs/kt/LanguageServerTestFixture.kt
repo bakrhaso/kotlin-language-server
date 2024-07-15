@@ -2,8 +2,8 @@ package org.javacs.kt
 
 import org.eclipse.lsp4j.*
 import org.eclipse.lsp4j.services.LanguageClient
-import org.junit.Before
 import org.junit.After
+import org.junit.Before
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.CompletableFuture
@@ -57,11 +57,13 @@ abstract class LanguageServerTestFixture(
         return languageServer
     }
 
-    @After fun closeLanguageServer() {
+    @After
+    fun closeLanguageServer() {
         languageServer.close()
     }
 
-    @After fun printMemoryUsage() {
+    @After
+    fun printMemoryUsage() {
         val rt = Runtime.getRuntime()
         val total = rt.totalMemory().toDouble() / 1000000.0
         val free = rt.freeMemory().toDouble() / 1000000.0
@@ -82,7 +84,15 @@ abstract class LanguageServerTestFixture(
     fun textDocumentPosition(relativePath: String, line: Int, column: Int): TextDocumentPositionParams =
         textDocumentPosition(relativePath, position(line, column))
 
-    fun codeActionParams(relativePath: String, startLine: Int, startColumn: Int, endLine: Int, endColumn: Int, diagnostics: List<Diagnostic>, only: List<String>): CodeActionParams {
+    fun codeActionParams(
+        relativePath: String,
+        startLine: Int,
+        startColumn: Int,
+        endLine: Int,
+        endColumn: Int,
+        diagnostics: List<Diagnostic>,
+        only: List<String>
+    ): CodeActionParams {
         val file = workspaceRoot.resolve(relativePath)
         val fileId = TextDocumentIdentifier(file.toUri().toString())
         val range = range(startLine, startColumn, endLine, endColumn)
@@ -124,7 +134,7 @@ abstract class LanguageServerTestFixture(
         Range(position(startLine, startColumn), position(endLine, endColumn))
 
     fun uri(relativePath: String) =
-            workspaceRoot.resolve(relativePath).toUri()
+        workspaceRoot.resolve(relativePath).toUri()
 
     fun referenceParams(relativePath: String, line: Int, column: Int): ReferenceParams =
         ReferenceParams(
@@ -134,7 +144,7 @@ abstract class LanguageServerTestFixture(
         )
 
     fun open(relativePath: String) {
-        val file =  workspaceRoot.resolve(relativePath)
+        val file = workspaceRoot.resolve(relativePath)
         val content = file.toFile().readText()
         val document = TextDocumentItem(file.toUri().toString(), "Kotlin", 0, content)
 
@@ -185,7 +195,8 @@ open class SingleFileTestFixture(
     val file: String,
     config: Configuration = Configuration()
 ) : LanguageServerTestFixture(relativeWorkspaceRoot, config) {
-    @Before fun openFile() {
+    @Before
+    fun openFile() {
         open(file)
 
         // Wait for lint, so subsequent replace(...) operations cause recovery

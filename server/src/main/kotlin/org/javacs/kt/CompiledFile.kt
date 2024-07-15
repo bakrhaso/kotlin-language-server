@@ -2,25 +2,21 @@ package org.javacs.kt
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
+import org.eclipse.lsp4j.Location
 import org.javacs.kt.compiler.CompilationKind
-import org.javacs.kt.position.changedRegion
-import org.javacs.kt.position.location
-import org.javacs.kt.position.position
-import org.javacs.kt.position.range
-import org.javacs.kt.position.toURIString
+import org.javacs.kt.position.*
 import org.javacs.kt.util.findParent
 import org.javacs.kt.util.nullResult
 import org.javacs.kt.util.toPath
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
-import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.parentsWithSelf
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.scopes.LexicalScope
 import org.jetbrains.kotlin.types.KotlinType
-import org.eclipse.lsp4j.Location
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -38,24 +34,24 @@ class CompiledFile(
      * Find the type of the expression at `cursor`
      */
     fun typeAtPoint(cursor: Int): KotlinType? {
-        val cursorExpr = parseAtPoint(cursor, asReference = true)?.findParent<KtExpression>() ?: return nullResult("Couldn't find expression at ${describePosition(cursor)}")
+        val cursorExpr = parseAtPoint(cursor, asReference = true)?.findParent<KtExpression>()
+            ?: return nullResult("Couldn't find expression at ${describePosition(cursor)}")
         val surroundingExpr = expandForType(cursor, cursorExpr)
         val scope = scopeAtPoint(cursor) ?: return nullResult("Couldn't find scope at ${describePosition(cursor)}")
         return typeOfExpression(surroundingExpr, scope)
     }
 
     fun typeOfExpression(expression: KtExpression, scopeWithImports: LexicalScope): KotlinType? =
-            bindingContextOf(expression, scopeWithImports).getType(expression)
+        bindingContextOf(expression, scopeWithImports).getType(expression)
 
     fun bindingContextOf(expression: KtExpression, scopeWithImports: LexicalScope): BindingContext =
-            classPath.compiler.compileKtExpression(expression, scopeWithImports, sourcePath, kind).first
+        classPath.compiler.compileKtExpression(expression, scopeWithImports, sourcePath, kind).first
 
     private fun expandForType(cursor: Int, surroundingExpr: KtExpression): KtExpression {
         val dotParent = surroundingExpr.parent as? KtDotQualifiedExpression
         if (dotParent != null && dotParent.selectorExpression?.textRange?.contains(cursor) ?: false) {
             return expandForType(cursor, dotParent)
-        }
-        else return surroundingExpr
+        } else return surroundingExpr
     }
 
     /**
@@ -68,7 +64,11 @@ class CompiledFile(
      */
     fun referenceAtPoint(cursor: Int): Pair<KtExpression, DeclarationDescriptor>? {
         val element = parseAtPoint(cursor, asReference = true)
-        val cursorExpr = element?.findParent<KtExpression>() ?: return nullResult("Couldn't find expression at ${describePosition(cursor)} (only found $element)")
+        val cursorExpr = element?.findParent<KtExpression>() ?: return nullResult(
+            "Couldn't find expression at ${
+                describePosition(cursor)
+            } (only found $element)"
+        )
         val surroundingExpr = expandForReference(cursor, cursorExpr)
         val scope = scopeAtPoint(cursor) ?: return nullResult("Couldn't find scope at ${describePosition(cursor)}")
         // NOTE: Due to our tiny-fake-file mechanism, we may have `path == /dummy.virtual.kt != parse.containingFile.toPath`
@@ -88,20 +88,24 @@ class CompiledFile(
         return referenceFromContext(cursor, path, compile)
     }
 
-    private fun referenceFromContext(cursor: Int, path: Path, context: BindingContext): Pair<KtExpression, DeclarationDescriptor>? {
+    private fun referenceFromContext(
+        cursor: Int,
+        path: Path,
+        context: BindingContext
+    ): Pair<KtExpression, DeclarationDescriptor>? {
         val targets = context.getSliceContents(BindingContext.REFERENCE_TARGET)
         return targets.asSequence()
-                .filter { cursor in it.key.textRange && it.key.containingFile.toPath() == path }
-                .sortedBy { it.key.textRange.length }
-                .map { it.toPair() }
-                .firstOrNull()
+            .filter { cursor in it.key.textRange && it.key.containingFile.toPath() == path }
+            .sortedBy { it.key.textRange.length }
+            .map { it.toPair() }
+            .firstOrNull()
     }
 
     private fun expandForReference(cursor: Int, surroundingExpr: KtExpression): KtExpression {
         val parent: KtExpression? =
             surroundingExpr.parent as? KtDotQualifiedExpression // foo.bar
-            ?: surroundingExpr.parent as? KtSafeQualifiedExpression // foo?.bar
-            ?: surroundingExpr.parent as? KtCallExpression // foo()
+                ?: surroundingExpr.parent as? KtSafeQualifiedExpression // foo?.bar
+                ?: surroundingExpr.parent as? KtCallExpression // foo()
         return parent?.let { expandForReference(cursor, it) } ?: surroundingExpr
     }
 
@@ -115,16 +119,21 @@ class CompiledFile(
     fun parseAtPoint(cursor: Int, asReference: Boolean = false): KtElement? {
         val oldCursor = oldOffset(cursor)
         val oldChanged = changedRegion(parse.text, content)?.first ?: TextRange(cursor, cursor)
-        val psi = parse.findElementAt(oldCursor) ?: return nullResult("Couldn't find anything at ${describePosition(cursor)}")
+        val psi =
+            parse.findElementAt(oldCursor) ?: return nullResult("Couldn't find anything at ${describePosition(cursor)}")
         val oldParent = psi.parentsWithSelf
-                .filterIsInstance<KtDeclaration>()
-                .firstOrNull { it.textRange.contains(oldChanged) } ?: parse
+            .filterIsInstance<KtDeclaration>()
+            .firstOrNull { it.textRange.contains(oldChanged) } ?: parse
 
         LOG.debug { "PSI path: ${psi.parentsWithSelf.toList()}" }
 
         val (surroundingContent, offset) = contentAndOffsetFromElement(psi, oldParent, asReference)
         val padOffset = " ".repeat(offset)
-        val recompile = classPath.compiler.createKtFile(padOffset + surroundingContent, Paths.get("dummy.virtual" + if (isScript) ".kts" else ".kt"), kind)
+        val recompile = classPath.compiler.createKtFile(
+            padOffset + surroundingContent,
+            Paths.get("dummy.virtual" + if (isScript) ".kts" else ".kt"),
+            kind
+        )
         return recompile.findElementAt(cursor)?.findParent<KtElement>()
     }
 
@@ -134,7 +143,11 @@ class CompiledFile(
      *
      * See `parseAtPoint` for documentation of the `asReference` flag.
      */
-    private fun contentAndOffsetFromElement(psi: PsiElement, parent: KtElement, asReference: Boolean): Pair<String, Int> {
+    private fun contentAndOffsetFromElement(
+        psi: PsiElement,
+        parent: KtElement,
+        asReference: Boolean
+    ): Pair<String, Int> {
         var surroundingContent: String
         var offset: Int
 
@@ -157,7 +170,8 @@ class CompiledFile(
         val recoveryRange = parent.textRange
         LOG.info("Re-parsing {}", describeRange(recoveryRange, true))
 
-        surroundingContent = content.substring(recoveryRange.startOffset, content.length - (parse.text.length - recoveryRange.endOffset))
+        surroundingContent =
+            content.substring(recoveryRange.startOffset, content.length - (parse.text.length - recoveryRange.endOffset))
         offset = recoveryRange.startOffset
 
         if (asReference && !((parent as? KtParameter)?.hasValOrVar() ?: true)) {
@@ -176,7 +190,8 @@ class CompiledFile(
      */
     fun elementAtPoint(cursor: Int): KtElement? {
         val oldCursor = oldOffset(cursor)
-        val psi = parse.findElementAt(oldCursor) ?: return nullResult("Couldn't find anything at ${describePosition(cursor)}")
+        val psi =
+            parse.findElementAt(oldCursor) ?: return nullResult("Couldn't find anything at ${describePosition(cursor)}")
         return psi.findParent<KtElement>()
     }
 
@@ -184,7 +199,8 @@ class CompiledFile(
     /**
      * Find the declaration of the element at the cursor.
      */
-    fun findDeclaration(cursor: Int): Pair<KtNamedDeclaration, Location>? = findDeclarationReference(cursor) ?: findDeclarationCursorSite(cursor)
+    fun findDeclaration(cursor: Int): Pair<KtNamedDeclaration, Location>? =
+        findDeclarationReference(cursor) ?: findDeclarationCursorSite(cursor)
 
     /**
      * Find the declaration of the element at the cursor. Only works if the element at the cursor is a reference.
@@ -214,9 +230,13 @@ class CompiledFile(
         val declaration = elementAtPoint(cursor)?.findParent<KtNamedDeclaration>()
 
         return declaration?.let {
-            Pair(it,
-                 Location(it.containingFile.toURIString(),
-                          range(content, it.nameIdentifier?.textRange ?: return null)))
+            Pair(
+                it,
+                Location(
+                    it.containingFile.toURIString(),
+                    range(content, it.nameIdentifier?.textRange ?: return null)
+                )
+            )
         }
     }
 
@@ -228,14 +248,14 @@ class CompiledFile(
         val oldCursor = oldOffset(cursor)
         val path = parse.containingFile.toPath()
         return compile.getSliceContents(BindingContext.LEXICAL_SCOPE).asSequence()
-                .filter {
-                    it.key.textRange.startOffset <= oldCursor
+            .filter {
+                it.key.textRange.startOffset <= oldCursor
                     && oldCursor <= it.key.textRange.endOffset
                     && it.key.containingFile.toPath() == path
-                }
-                .sortedBy { it.key.textRange.length  }
-                .map { it.value }
-                .firstOrNull()
+            }
+            .sortedBy { it.key.textRange.length }
+            .map { it.value }
+            .firstOrNull()
     }
 
     fun lineBefore(cursor: Int): String = content.substring(0, cursor).substringAfterLast('\n')
@@ -252,6 +272,7 @@ class CompiledFile(
                 val oldRelative = newRelative * oldChanged.length / newChanged.length
                 oldChanged.startOffset + oldRelative
             }
+
             else -> parse.text.length - (content.length - cursor)
         }
     }

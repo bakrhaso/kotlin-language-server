@@ -26,7 +26,8 @@ interface Progress : Closeable {
         fun create(label: String): CompletableFuture<Progress>
 
         object None : Factory {
-            override fun create(label: String): CompletableFuture<Progress> = CompletableFuture.completedFuture(Progress.None)
+            override fun create(label: String): CompletableFuture<Progress> =
+                CompletableFuture.completedFuture(Progress.None)
         }
     }
 }

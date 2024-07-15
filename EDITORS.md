@@ -1,21 +1,31 @@
 # Editor Integration
 
 ## Visual Studio Code
-See [vscode-kotlin](https://github.com/fwcd/vscode-kotlin) or install the extension from the [marketplace](https://marketplace.visualstudio.com/items?itemName=fwcd.kotlin).
+
+See [vscode-kotlin](https://github.com/fwcd/vscode-kotlin) or install the extension from
+the [marketplace](https://marketplace.visualstudio.com/items?itemName=fwcd.kotlin).
 
 ## Sublime Text
+
 See [lsp-kotlin](https://github.com/sublimelsp/LSP-kotlin).
 
 ## Emacs
+
 _using [`lsp-mode`](https://github.com/emacs-lsp/lsp-mode)_
 
 There are two ways of setting up the language server with `lsp-mode`:
-- Add the language server executable to your `PATH`. This is useful for development and for always using the latest version from the `main`-branch.
-- Let `lsp-mode` download the server for you (`kotlin-ls`). This will use [the latest release](https://github.com/fwcd/kotlin-language-server/releases/latest).
 
+- Add the language server executable to your `PATH`. This is useful for development and for always using the latest
+  version from the `main`-branch.
+- Let `lsp-mode` download the server for you (`kotlin-ls`). This will
+  use [the latest release](https://github.com/fwcd/kotlin-language-server/releases/latest).
 
 ### Run/debug code lenses
-If you use [dap-mode](https://github.com/emacs-lsp/dap-mode), you can set `(setq lsp-kotlin-debug-adapter-enabled t)` to enable the debug adapter. You will need to have [Kotlin Debug Adapter](https://github.com/fwcd/kotlin-debug-adapter) on your system. A simple configuration of `dap-mode` for Kotlin may look like:
+
+If you use [dap-mode](https://github.com/emacs-lsp/dap-mode), you can set `(setq lsp-kotlin-debug-adapter-enabled t)` to
+enable the debug adapter. You will need to have [Kotlin Debug Adapter](https://github.com/fwcd/kotlin-debug-adapter) on
+your system. A simple configuration of `dap-mode` for Kotlin may look like:
+
 ```emacs-lisp
 (require 'dap-kotlin)
 (setq lsp-kotlin-debug-adapter-enabled t)
@@ -25,13 +35,16 @@ If you use [dap-mode](https://github.com/emacs-lsp/dap-mode), you can set `(setq
 
 Then you can activate `lsp-kotlin-lens-mode` to see the Run/Debug code lenses at your main-functions.
 
-
 ### Override members (e.g, toString and equals)
-The language server provides a custom protocol extension for finding overridable members of a class (variables and methods). `lsp-mode` provides a function that uses this called `lsp-kotlin-implement-member`. You can run it while hovering a class name, and you will get a menu with all available overridable members. (protip: Bind this function to a key!). If you have [Helm](https://github.com/emacs-helm/helm) or [Ivy](https://github.com/abo-abo/swiper) installed, one of them will be utilized.
 
-
+The language server provides a custom protocol extension for finding overridable members of a class (variables and
+methods). `lsp-mode` provides a function that uses this called `lsp-kotlin-implement-member`. You can run it while
+hovering a class name, and you will get a menu with all available overridable members. (protip: Bind this function to a
+key!). If you have [Helm](https://github.com/emacs-helm/helm) or [Ivy](https://github.com/abo-abo/swiper) installed, one
+of them will be utilized.
 
 ## Vim
+
 _using [`LanguageClient-neovim`](https://github.com/autozimu/LanguageClient-neovim)_
 
 Add the language server to your `PATH` and include the following configuration in your `.vimrc`:
@@ -60,7 +73,8 @@ Add the following to your coc-settings.json file:
 ```
 
 Note that you may need to substitute `kotlin-language-server` with `kotlin-language-server.bat` on Windows.\
-You should also note, that you need a syntax highlighter like [udalov/kotlin-vim](https://github.com/udalov/kotlin-vim) or [sheerun/vim-polyglot](https://github.com/sheerun/vim-polyglot) to work well with coc.
+You should also note, that you need a syntax highlighter like [udalov/kotlin-vim](https://github.com/udalov/kotlin-vim)
+or [sheerun/vim-polyglot](https://github.com/sheerun/vim-polyglot) to work well with coc.
 
 ## Neovim
 
@@ -82,10 +96,13 @@ require'lspconfig'.kotlin_language_server.setup{
 ```
 
 ## Monaco Editor
+
 See [kotlin-monaco-language-server](https://github.com/yahorbarkouski/kotlin-monaco-language-server).
 
 ## Other Editors
-Install a [Language Server Protocol client](https://microsoft.github.io/language-server-protocol/implementors/tools/) for your tool. Then invoke the language server executable in a client-specific way.
+
+Install a [Language Server Protocol client](https://microsoft.github.io/language-server-protocol/implementors/tools/)
+for your tool. Then invoke the language server executable in a client-specific way.
 
 The server can be launched in three modes:
 

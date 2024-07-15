@@ -2,7 +2,7 @@ package test.my.companion
 
 val SOME_GLOBAL_CONSTANT = 42
 
-fun multiplyByOne(num: Int) = num*1
+fun multiplyByOne(num: Int) = num * 1
 
 class SweetPotato {
     companion object {

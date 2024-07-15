@@ -32,7 +32,8 @@ class Debouncer(
     fun schedule(task: (cancelCallback: () -> Boolean) -> Unit) {
         pendingTask?.cancel(false)
         val currentTaskRef = AtomicReference<Future<*>>()
-        val currentTask = executor.schedule({ task { currentTaskRef.get()?.isCancelled() ?: false } }, delayMs, TimeUnit.MILLISECONDS)
+        val currentTask =
+            executor.schedule({ task { currentTaskRef.get()?.isCancelled() ?: false } }, delayMs, TimeUnit.MILLISECONDS)
         currentTaskRef.set(currentTask)
         pendingTask = currentTask
     }
@@ -44,8 +45,8 @@ class Debouncer(
     fun shutdown(awaitTermination: Boolean) {
         executor.shutdown()
         if (awaitTermination) {
-			LOG.info("Awaiting debouncer termination...")
-			executor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS)
-		}
+            LOG.info("Awaiting debouncer termination...")
+            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS)
+        }
     }
 }

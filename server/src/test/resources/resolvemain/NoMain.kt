@@ -1,3 +1,3 @@
 package no.main.found.hopefully
 
-fun multiplyByOne(num: Int) = num*1
+fun multiplyByOne(num: Int) = num * 1

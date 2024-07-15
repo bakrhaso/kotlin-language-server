@@ -5,6 +5,6 @@ class OtherFileSymbols() {
         val otherFileLocalVariable = 1
     }
 
-    constructor(aConstructorArg: Int): this() {
+    constructor(aConstructorArg: Int) : this() {
     }
 }

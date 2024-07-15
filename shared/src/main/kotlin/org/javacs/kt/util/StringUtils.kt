@@ -52,6 +52,7 @@ fun stringDistance(candidate: CharSequence, pattern: CharSequence, maxOffset: In
                                 break@searchWindow
                             }
                         }
+
                         (iPattern + i) < patternLength -> {
                             if (candidate[iCandidate] == pattern[iPattern + i]) {
                                 iPattern += i
@@ -59,6 +60,7 @@ fun stringDistance(candidate: CharSequence, pattern: CharSequence, maxOffset: In
                                 break@searchWindow
                             }
                         }
+
                         else -> break@searchWindow
                     }
                 }

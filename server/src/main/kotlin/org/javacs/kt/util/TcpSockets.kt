@@ -1,10 +1,10 @@
 package org.javacs.kt.util
 
+import org.javacs.kt.LOG
 import java.io.InputStream
 import java.io.OutputStream
-import java.net.Socket
 import java.net.ServerSocket
-import org.javacs.kt.LOG
+import java.net.Socket
 
 /**
  * Starts a TCP server socket. Blocks until the first
@@ -21,5 +21,5 @@ fun tcpStartServer(port: Int): Pair<InputStream, OutputStream> = ServerSocket(po
  */
 fun tcpConnectToClient(host: String, port: Int): Pair<InputStream, OutputStream> =
     run { LOG.info("Connecting to client at {}:{}...", host, port) }
-    .let { Socket(host, port) }
-    .let { Pair(it.inputStream, it.outputStream) }
+        .let { Socket(host, port) }
+        .let { Pair(it.inputStream, it.outputStream) }

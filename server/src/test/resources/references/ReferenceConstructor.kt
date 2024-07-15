@@ -1,5 +1,5 @@
 private class ReferenceConstructor(mainConstructor: String) {
-    constructor(secondaryConstructor: String, partTwo: String): this(secondaryConstructor + partTwo) {
+    constructor(secondaryConstructor: String, partTwo: String) : this(secondaryConstructor + partTwo) {
     }
 }
 

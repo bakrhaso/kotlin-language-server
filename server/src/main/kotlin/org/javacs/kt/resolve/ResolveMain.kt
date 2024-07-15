@@ -1,17 +1,17 @@
 package org.javacs.kt.resolve
 
-import java.io.File
-import org.jetbrains.kotlin.fileClasses.JvmFileClassUtil
-import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.psi.KtNamedFunction
-import org.jetbrains.kotlin.psi.KtClass
-import org.jetbrains.kotlin.psi.KtObjectDeclaration
+import com.intellij.openapi.util.TextRange
 import org.javacs.kt.CompiledFile
 import org.javacs.kt.position.range
 import org.javacs.kt.util.partitionAroundLast
-import com.intellij.openapi.util.TextRange
+import org.jetbrains.kotlin.fileClasses.JvmFileClassUtil
+import org.jetbrains.kotlin.psi.KtClass
+import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.KtObjectDeclaration
+import java.io.File
 
-fun resolveMain(file: CompiledFile): Map<String,Any> {
+fun resolveMain(file: CompiledFile): Map<String, Any> {
     val parsedFile = file.parse.copy() as KtFile
 
     findTopLevelMainFunction(parsedFile)?.let { mainFunction ->
@@ -56,8 +56,8 @@ private fun findCompanionObjectMain(file: KtFile): Pair<String?, TextRange>? = f
     .mapNotNull { companionObjectInternal ->
         companionObjectInternal.takeIf {
             companionObjectInternal is KtNamedFunction
-            && "main" == companionObjectInternal.name
-            && companionObjectInternal.text.startsWith("@JvmStatic")
+                && "main" == companionObjectInternal.name
+                && companionObjectInternal.text.startsWith("@JvmStatic")
         }
     }
     .firstOrNull()?.let {

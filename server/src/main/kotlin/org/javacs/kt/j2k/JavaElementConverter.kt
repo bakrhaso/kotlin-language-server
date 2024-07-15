@@ -1,8 +1,8 @@
 package org.javacs.kt.j2k
 
-import org.javacs.kt.LOG
 import com.intellij.psi.*
 import com.intellij.psi.javadoc.*
+import org.javacs.kt.LOG
 
 /**
  * A Psi visitor that converts Java elements into
@@ -49,7 +49,8 @@ class JavaElementConverter(
         return "{\n$indentedStatements\n${nextIndent(indentDelta - 1)}}"
     }
 
-    private fun List<String>.buildCodeBlock(indentDelta: Int = 1, separatorNewlines: Int = 1): String = asSequence().buildCodeBlock(indentDelta, separatorNewlines)
+    private fun List<String>.buildCodeBlock(indentDelta: Int = 1, separatorNewlines: Int = 1): String =
+        asSequence().buildCodeBlock(indentDelta, separatorNewlines)
 
     /** Converts a PsiType to its Kotlin representation. */
     private fun PsiType.translateType(): String = accept(JavaTypeConverter)
@@ -58,11 +59,12 @@ class JavaElementConverter(
     private fun PsiCallExpression.translateTypeArguments(): String = "<${typeArgumentList.translate()}>"
 
     /** Fetches the child statements of a potentially composite statement. */
-    private val PsiStatement.containedStatements: Sequence<PsiStatement> get() = if (this is PsiBlockStatement) {
-        codeBlock.statements.asSequence()
-    } else {
-        sequenceOf(this)
-    }
+    private val PsiStatement.containedStatements: Sequence<PsiStatement>
+        get() = if (this is PsiBlockStatement) {
+            codeBlock.statements.asSequence()
+        } else {
+            sequenceOf(this)
+        }
 
     private fun j2kTODO(type: String) {
         LOG.warn("J2K can not convert $type yet")
@@ -96,11 +98,13 @@ class JavaElementConverter(
     }
 
     override fun visitAssignmentExpression(expression: PsiAssignmentExpression) {
-        translatedKotlinCode = "${expression.lExpression.translate()} ${expression.operationSign.text} ${expression.rExpression.translate()}"
+        translatedKotlinCode =
+            "${expression.lExpression.translate()} ${expression.operationSign.text} ${expression.rExpression.translate()}"
     }
 
     override fun visitBinaryExpression(expression: PsiBinaryExpression) {
-        translatedKotlinCode = "${expression.lOperand.translate()} ${expression.operationSign.text} ${expression.rOperand.translate()}"
+        translatedKotlinCode =
+            "${expression.lOperand.translate()} ${expression.operationSign.text} ${expression.rOperand.translate()}"
     }
 
     override fun visitBlockStatement(statement: PsiBlockStatement) {
@@ -223,7 +227,8 @@ class JavaElementConverter(
         val translatedBody = ((statement.body?.containedStatements ?: emptySequence()) + sequenceOf(statement.update))
             .mapNotNull { it.translate(indentDelta = 1) }
             .buildCodeBlock()
-        translatedKotlinCode = "${statement.initialization.translate()}\n${indent}while (${statement.condition.translate()}) $translatedBody"
+        translatedKotlinCode =
+            "${statement.initialization.translate()}\n${indent}while (${statement.condition.translate()}) $translatedBody"
     }
 
     override fun visitForeachStatement(statement: PsiForeachStatement) {
@@ -600,6 +605,7 @@ class JavaElementConverter(
                     .joinToString(separator = "\n")
                 "\n$indentedStatements\n$indent"
             }
+
             else -> " ? "
         }
 

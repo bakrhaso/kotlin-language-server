@@ -1,15 +1,11 @@
 class Door
-(
-val width:Int=3
-,val height   :Int = 4
+    (
+    val width: Int = 3, val height: Int = 4
 )
 
-class     House
+class House {
+    val door = Door()
 
-{
-    val     door=Door (  )
-    
-    
-    
-    val window   = "Window"
+
+    val window = "Window"
 }

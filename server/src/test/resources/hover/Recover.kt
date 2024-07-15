@@ -1,9 +1,9 @@
 private fun singleExpressionFunction() =
-        "Foo"
+    "Foo"
 
 private fun blockFunction() {
     println("Foo")
 }
 
 private fun intFunction() =
-        1
+    1

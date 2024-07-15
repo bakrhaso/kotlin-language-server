@@ -1,8 +1,8 @@
 package org.javacs.kt
 
+import org.hamcrest.Matchers.equalTo
 import org.javacs.kt.imports.getImportTextEditEntry
 import org.jetbrains.kotlin.name.FqName
-import org.hamcrest.Matchers.*
 import org.junit.Assert.assertThat
 import org.junit.Test
 

@@ -14,20 +14,21 @@ internal class ShellClassPathResolver(
     private val workingDir: Path? = null
 ) : ClassPathResolver {
     override val resolverType: String = "Shell"
-    override val classpath: Set<ClassPathEntry> get() {
-        val workingDirectory = workingDir?.toFile() ?: script.toAbsolutePath().parent.toFile()
-        val cmd = script.toString()
-        LOG.info("Run {} in {}", cmd, workingDirectory)
-        val process = ProcessBuilder(cmd).directory(workingDirectory).start()
+    override val classpath: Set<ClassPathEntry>
+        get() {
+            val workingDirectory = workingDir?.toFile() ?: script.toAbsolutePath().parent.toFile()
+            val cmd = script.toString()
+            LOG.info("Run {} in {}", cmd, workingDirectory)
+            val process = ProcessBuilder(cmd).directory(workingDirectory).start()
 
-        return process.inputStream.bufferedReader().readText()
-            .split(File.pathSeparator)
-            .asSequence()
-            .map { it.trim() }
-            .filter { it.isNotEmpty() }
-            .map { ClassPathEntry(Paths.get(it), null) }
-            .toSet()
-    }
+            return process.inputStream.bufferedReader().readText()
+                .split(File.pathSeparator)
+                .asSequence()
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+                .map { ClassPathEntry(Paths.get(it), null) }
+                .toSet()
+        }
 
     companion object {
         private val configDirNames = listOf("kotlin-language-server", "KotlinLanguageServer")

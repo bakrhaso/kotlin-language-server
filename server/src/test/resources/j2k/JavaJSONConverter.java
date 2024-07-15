@@ -1,7 +1,7 @@
 package j2k;
 
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 
 public class JavaJSONConverter<T> {
     public static void main(String[] args) {

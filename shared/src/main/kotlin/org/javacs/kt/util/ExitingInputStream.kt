@@ -3,7 +3,7 @@ package org.javacs.kt.util
 import java.io.InputStream
 import org.javacs.kt.LOG
 
-class ExitingInputStream(private val delegate: InputStream): InputStream() {
+class ExitingInputStream(private val delegate: InputStream) : InputStream() {
     override fun read(): Int = exitIfNegative { delegate.read() }
 
     override fun read(b: ByteArray): Int = exitIfNegative { delegate.read(b) }

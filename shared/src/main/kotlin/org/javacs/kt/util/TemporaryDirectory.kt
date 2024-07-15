@@ -14,7 +14,8 @@ import java.nio.file.Files
 class TemporaryDirectory(prefix: String = "kotlinlangserver") : Closeable {
     private val dirPath: Path = Files.createTempDirectory(prefix)
 
-    fun createTempFile(prefix: String = "tmp", suffix: String = ""): Path = Files.createTempFile(dirPath, prefix, suffix)
+    fun createTempFile(prefix: String = "tmp", suffix: String = ""): Path =
+        Files.createTempFile(dirPath, prefix, suffix)
 
     override fun close() {
         if (Files.exists(dirPath)) {

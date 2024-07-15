@@ -35,7 +35,8 @@ data class Symbol(
         UNKNOWN(5);
 
         companion object {
-            fun fromRaw(rawValue: Int) = Visibility.values().firstOrNull { it.rawValue == rawValue } ?: Visibility.UNKNOWN
+            fun fromRaw(rawValue: Int) =
+                Visibility.values().firstOrNull { it.rawValue == rawValue } ?: Visibility.UNKNOWN
         }
     }
 }

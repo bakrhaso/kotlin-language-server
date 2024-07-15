@@ -3,14 +3,13 @@ package org.javacs.kt.externalsources
 import org.javacs.kt.CompilerClassPath
 import org.javacs.kt.ExternalSourcesConfiguration
 import org.javacs.kt.LOG
-import org.javacs.kt.util.describeURI
+import org.javacs.kt.j2k.convertJavaToKotlin
 import org.javacs.kt.util.KotlinLSException
 import org.javacs.kt.util.TemporaryDirectory
-import org.javacs.kt.j2k.convertJavaToKotlin
+import org.javacs.kt.util.describeURI
 import java.io.BufferedReader
 import java.io.FileNotFoundException
 import java.nio.file.Files
-import java.util.LinkedHashMap
 
 /**
  * Provides the source code for classes located inside
@@ -36,16 +35,17 @@ class ClassContentProvider(
      */
     fun contentOf(uri: KlsURI): Pair<KlsURI, String> {
         LOG.info("Resolving {} for contents", uri)
-        val resolvedUri = sourceArchiveProvider.fetchSourceArchive(uri.archivePath)?.let(uri.withSource(true)::withArchivePath) ?: uri
+        val resolvedUri =
+            sourceArchiveProvider.fetchSourceArchive(uri.archivePath)?.let(uri.withSource(true)::withArchivePath) ?: uri
         val key = resolvedUri.toString()
         val (contents, extension) = cachedContents[key] ?: run {
-                LOG.info("Reading contents of {}", describeURI(resolvedUri.fileUri))
-                tryReadContentOf(resolvedUri)
-                    ?: tryReadContentOf(resolvedUri.withFileExtension("class"))
-                    ?: tryReadContentOf(resolvedUri.withFileExtension("java"))
-                    ?: tryReadContentOf(resolvedUri.withFileExtension("kt"))
-                    ?: throw KotlinLSException("Could not find $uri")
-            }.also { cachedContents[key] = it }
+            LOG.info("Reading contents of {}", describeURI(resolvedUri.fileUri))
+            tryReadContentOf(resolvedUri)
+                ?: tryReadContentOf(resolvedUri.withFileExtension("class"))
+                ?: tryReadContentOf(resolvedUri.withFileExtension("java"))
+                ?: tryReadContentOf(resolvedUri.withFileExtension("kt"))
+                ?: throw KotlinLSException("Could not find $uri")
+        }.also { cachedContents[key] = it }
         val sourceUri = resolvedUri.withFileExtension(extension)
         return Pair(sourceUri, contents)
     }
@@ -64,8 +64,15 @@ class ClassContentProvider(
                 .bufferedReader()
                 .use(BufferedReader::readText)
                 .let(this::convertToKotlinIfNeeded), if (config.autoConvertToKotlin) "kt" else "java")
-            "java" -> if (uri.source) Pair(uri.readContents(), "java") else Pair(convertToKotlinIfNeeded(uri.readContents()), "kt")
+
+            "java" -> if (uri.source) Pair(
+                uri.readContents(),
+                "java"
+            ) else Pair(convertToKotlinIfNeeded(uri.readContents()), "kt")
+
             else -> Pair(uri.readContents(), "kt") // e.g. for Kotlin source files
         }
-    } catch (e: FileNotFoundException) { null }
+    } catch (e: FileNotFoundException) {
+        null
+    }
 }

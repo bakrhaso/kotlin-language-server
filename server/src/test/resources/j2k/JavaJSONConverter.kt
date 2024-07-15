@@ -1,10 +1,11 @@
 package j2k
 
-import java.util.Arrays
+import java.util.*
 
 class JavaJSONConverter<T> {
     companion object {
-        @JvmStatic fun main(args: Array<String>) {
+        @JvmStatic
+        fun main(args: Array<String>) {
             System.out.println("JSON: " + JavaJSONConverter<Int>().toJSONArray(Arrays.asList(98, 23, 34)))
         }
     }

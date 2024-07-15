@@ -1,5 +1,5 @@
 sealed class SealedClass {
-    class Test: SealedClass() {}
+    class Test : SealedClass() {}
 }
 
 fun sealedWhenFunc() {

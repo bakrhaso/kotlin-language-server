@@ -3,8 +3,9 @@
 ## Bugs
 
 ## Features
+
 - Fix-imports-on-save, default to 'on'
-  - See https://godoc.org/golang.org/x/tools/cmd/goimports
+    - See https://godoc.org/golang.org/x/tools/cmd/goimports
 - Rename
 - .kts support with eval
 

@@ -12,12 +12,13 @@ object BigFile {
     fun main7(args: Array<String>) {
         val language = if (args.size == 0) "EN" else args[0]
         println(
-                when (language) {
-                    "EN" -> "Hello!"
-                    "FR" -> "Salut!"
-                    "IT" -> "Ciao!"
-                    else -> "Sorry, I can't greet you in $language yet"
-                })
+            when (language) {
+                "EN" -> "Hello!"
+                "FR" -> "Salut!"
+                "IT" -> "Ciao!"
+                else -> "Sorry, I can't greet you in $language yet"
+            }
+        )
     }
 
     /**
@@ -349,13 +350,15 @@ object BigFile {
 
     class User5(val map: Map<String, Any?>) {
         val name: String by map
-        val age: Int     by map
+        val age: Int by map
     }
 
     fun main23(args: Array<String>) {
         val user = User5(
-                mapOf(
-                        "name" to "John Doe", "age" to 25))
+            mapOf(
+                "name" to "John Doe", "age" to 25
+            )
+        )
 
         println("name = ${user.name}, age = ${user.age}")
     }
@@ -449,19 +452,23 @@ object BigFile {
             println("${bottlesOfBeer(bottles)} on the wall.\n")
         }
         println(
-                "No more bottles of beer on the wall, no more bottles of beer.\n" + "Go to the store and buy some more, ${bottlesOfBeer(
-                        bottleCount)} on the wall.")
+            "No more bottles of beer on the wall, no more bottles of beer.\n" + "Go to the store and buy some more, ${
+                bottlesOfBeer(
+                    bottleCount
+                )
+            } on the wall."
+        )
     }
 
     fun bottlesOfBeer(count: Int): String = when (count) {
-                                                0 -> "no more bottles"
-                                                1 -> "1 bottle"
-                                                else -> "$count bottles"
-                                            } + " of beer"
+        0 -> "no more bottles"
+        1 -> "1 bottle"
+        else -> "$count bottles"
+    } + " of beer"
 
-/*
- * An excerpt from the Standard Library
- */
+    /*
+     * An excerpt from the Standard Library
+     */
 
     // This is an extension property, i.e. a property that is defined for the
 // type Array<T>, but does not sit inside the class Array
@@ -612,24 +619,27 @@ object BigFile {
      * See http://en.wikipedia.org/wiki/Conway's_Game_of_Life
      */
 
-/*
- * A field where cells live. Effectively immutable
- */
+    /*
+     * A field where cells live. Effectively immutable
+     */
     class Field(
-            val width: Int, val height: Int,
-            // This function tells the constructor which cells are alive
-            // if init(i, j) is true, the cell (i, j) is alive
-            init: (Int, Int) -> Boolean) {
+        val width: Int, val height: Int,
+        // This function tells the constructor which cells are alive
+        // if init(i, j) is true, the cell (i, j) is alive
+        init: (Int, Int) -> Boolean
+    ) {
         private val live: Array<Array<Boolean>> = Array(height) { i -> Array(width) { j -> init(i, j) } }
 
         private fun liveCount(i: Int, j: Int) = if (i in 0..height - 1 && j in 0..width - 1 && live[i][j]) 1 else 0
 
         // How many neighbors of (i, j) are alive?
         fun liveNeighbors(i: Int, j: Int) = liveCount(i - 1, j - 1) + liveCount(i - 1, j) + liveCount(
-                i - 1,
-                j + 1) + liveCount(
-                i,
-                j - 1) + liveCount(i, j + 1) + liveCount(i + 1, j - 1) + liveCount(i + 1, j) + liveCount(i + 1, j + 1)
+            i - 1,
+            j + 1
+        ) + liveCount(
+            i,
+            j - 1
+        ) + liveCount(i, j + 1) + liveCount(i + 1, j - 1) + liveCount(i + 1, j) + liveCount(i + 1, j + 1)
 
         // You can say field[i, j], and this function gets called
         operator fun get(i: Int, j: Int) = live[i][j]
@@ -657,40 +667,44 @@ object BigFile {
         runGameOfLife("***", 3)
         // "Star burst"
         runGameOfLife(
-                """
+            """
         _______
         ___*___
         __***__
         ___*___
         _______
-    """, 10)
+    """, 10
+        )
         // Stable colony
         runGameOfLife(
-                """
+            """
         _____
         __*__
         _*_*_
         __*__
         _____
-    """, 3)
+    """, 3
+        )
         // Stable from the step 2
         runGameOfLife(
-                """
+            """
         __**__
         __**__
         __**__
-    """, 3)
+    """, 3
+        )
         // Oscillating colony
         runGameOfLife(
-                """
+            """
         __**____
         __**____
         ____**__
         ____**__
-    """, 6)
+    """, 6
+        )
         // A fancier oscillating colony
         runGameOfLife(
-                """
+            """
         -------------------
         -------***---***---
         -------------------
@@ -706,7 +720,8 @@ object BigFile {
         -------------------
         -------***---***---
         -------------------
-    """, 10)
+    """, 10
+        )
     }
 
 // UTILITIES
@@ -818,31 +833,33 @@ object BigFile {
      * A data class that represents a maze
      */
     class Maze(
-            // Number or columns
-            val width: Int,
-            // Number of rows
-            val height: Int,
-            // true for a wall, false for free space
-            val walls: Array<BooleanArray>,
-            // The starting point (must not be a wall)
-            val start: Point,
-            // The target point (must not be a wall)
-            val end: Point) {}
+        // Number or columns
+        val width: Int,
+        // Number of rows
+        val height: Int,
+        // true for a wall, false for free space
+        val walls: Array<BooleanArray>,
+        // The starting point (must not be a wall)
+        val start: Point,
+        // The target point (must not be a wall)
+        val end: Point
+    ) {}
 
     /** A few maze examples here */
     fun main6(args: Array<String>) {
         walkThroughMaze("I  $")
         walkThroughMaze("I O $")
         walkThroughMaze(
-                """
+            """
     O  $
     O
     O
     O
     O           I
-  """)
+  """
+        )
         walkThroughMaze(
-                """
+            """
     OOOOOOOOOOO
     O $       O
     OOOOOOO OOO
@@ -852,9 +869,10 @@ object BigFile {
     O OOOOOOOOO
     O        OO
     OOOOOO   IO
-  """)
+  """
+        )
         walkThroughMaze(
-                """
+            """
     OOOOOOOOOOOOOOOOO
     O               O
     O$  O           O
@@ -864,7 +882,8 @@ object BigFile {
     O           O I O
     O               O
     OOOOOOOOOOOOOOOOO
-  """)
+  """
+        )
     }
 
 // UTILITIES
@@ -878,11 +897,12 @@ object BigFile {
             for (j in 0..maze.width - 1) {
                 val cell = Point(i, j)
                 print(
-                        if (maze.walls[i][j]) "O"
-                        else if (cell == maze.start) "I"
-                        else if (cell == maze.end) "$"
-                        else if (path != null && path.contains(cell)) "~"
-                        else " ")
+                    if (maze.walls[i][j]) "O"
+                    else if (cell == maze.start) "I"
+                    else if (cell == maze.end) "$"
+                    else if (path != null && path.contains(cell)) "~"
+                    else " "
+                )
             }
             println("")
         }
@@ -927,11 +947,12 @@ object BigFile {
         }
 
         return Maze(
-                longestLine.length,
-                lines.size,
-                data,
-                start ?: throw IllegalArgumentException("No starting point in the maze (should be indicated with 'I')"),
-                end
-                ?: throw IllegalArgumentException("No goal point in the maze (should be indicated with a '$' sign)"))
+            longestLine.length,
+            lines.size,
+            data,
+            start ?: throw IllegalArgumentException("No starting point in the maze (should be indicated with 'I')"),
+            end
+                ?: throw IllegalArgumentException("No goal point in the maze (should be indicated with a '$' sign)")
+        )
     }
 }

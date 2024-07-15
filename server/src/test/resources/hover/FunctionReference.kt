@@ -3,4 +3,4 @@ private fun foo(): List<String> {
 }
 
 private fun isFoo(s: String) =
-        s == "Foo"
+    s == "Foo"

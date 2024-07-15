@@ -40,9 +40,9 @@ class SourceExclusions(
     /** Tests whether the given path is not excluded. */
     fun isPathIncluded(file: Path): Boolean = workspaceRoots.any { file.startsWith(it) }
         && exclusionMatchers.none { matcher ->
-            workspaceRoots
-                .mapNotNull { if (file.startsWith(it)) it.relativize(file) else null }
-                .flatMap { it } // Extract path segments
-                .any(matcher::matches)
-        }
+        workspaceRoots
+            .mapNotNull { if (file.startsWith(it)) it.relativize(file) else null }
+            .flatMap { it } // Extract path segments
+            .any(matcher::matches)
+    }
 }

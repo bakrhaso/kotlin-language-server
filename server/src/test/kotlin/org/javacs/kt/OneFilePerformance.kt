@@ -1,15 +1,15 @@
 package org.javacs.kt
 
-import org.javacs.kt.util.LoggingMessageCollector
-import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
-import org.jetbrains.kotlin.cli.jvm.compiler.CliBindingTrace
-import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
-import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.StandardFileSystems
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.PsiManager
 import com.intellij.psi.util.PsiTreeUtil
+import org.javacs.kt.util.LoggingMessageCollector
+import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
+import org.jetbrains.kotlin.cli.jvm.compiler.CliBindingTrace
+import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
+import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.metadata.jvm.deserialization.JvmProtoBufUtil
@@ -34,10 +34,12 @@ class OneFilePerformance {
     @State(Scope.Thread)
     class ReusableParts : Closeable {
         internal var config = CompilerConfiguration()
+
         init {
             config.put(CommonConfigurationKeys.MODULE_NAME, JvmProtoBufUtil.DEFAULT_MODULE_NAME)
             config.put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, LoggingMessageCollector)
         }
+
         internal val disposable = Disposer.newDisposable()
         internal var env = KotlinCoreEnvironment.createForProduction(
             disposable, config, EnvironmentConfigFiles.JVM_CONFIG_FILES
@@ -118,13 +120,14 @@ class OneFilePerformance {
 
     companion object {
         @Throws(RunnerException::class, InterruptedException::class)
-        @JvmStatic fun main(args: Array<String>) {
+        @JvmStatic
+        fun main(args: Array<String>) {
             val opt = OptionsBuilder().include(OneFilePerformance::class.java.getSimpleName())
-                    .forks(1)
-                    .threads(1)
-                    .warmupIterations(5)
-                    .measurementIterations(5)
-                    .build()
+                .forks(1)
+                .threads(1)
+                .warmupIterations(5)
+                .measurementIterations(5)
+                .build()
             Runner(opt).run()
         }
     }

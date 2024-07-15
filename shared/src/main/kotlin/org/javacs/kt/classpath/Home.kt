@@ -15,7 +15,7 @@ private val possibleMavenRepositoryPaths =
         createPathOrNull("M2_HOME")?.let { it.resolve("repository") },
         userHome.resolve(".m2/repository"),
     )
-    .filterNotNull()
+        .filterNotNull()
 
 internal val mavenRepository =
     possibleMavenRepositoryPaths.firstOrNull { Files.exists(it) }

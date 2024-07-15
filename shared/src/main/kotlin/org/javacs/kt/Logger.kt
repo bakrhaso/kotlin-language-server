@@ -12,7 +12,7 @@ import org.javacs.kt.util.DelegatePrintStream
 
 val LOG = Logger()
 
-private class JULRedirector(private val downstream: Logger): Handler() {
+private class JULRedirector(private val downstream: Logger) : Handler() {
     override fun publish(record: LogRecord) {
         when (record.level) {
             Level.SEVERE -> downstream.error(record.message)
@@ -103,7 +103,8 @@ class Logger {
 
     fun trace(msg: String, vararg placeholders: Any?) = logWithPlaceholdersAt(LogLevel.TRACE, msg, placeholders)
 
-    fun deepTrace(msg: String, vararg placeholders: Any?) = logWithPlaceholdersAt(LogLevel.DEEP_TRACE, msg, placeholders)
+    fun deepTrace(msg: String, vararg placeholders: Any?) =
+        logWithPlaceholdersAt(LogLevel.DEEP_TRACE, msg, placeholders)
 
     // Convenience logging methods using inlined lambdas
 
@@ -182,9 +183,9 @@ class Logger {
     }
 
     private fun shortenOrPad(str: String, length: Int): String =
-            if (str.length <= length) {
-                str.padEnd(length, ' ')
-            } else {
-                ".." + str.substring(str.length - length + 2)
-            }
+        if (str.length <= length) {
+            str.padEnd(length, ' ')
+        } else {
+            ".." + str.substring(str.length - length + 2)
+        }
 }

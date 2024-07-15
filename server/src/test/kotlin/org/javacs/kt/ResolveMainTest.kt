@@ -3,10 +3,8 @@ package org.javacs.kt
 import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.Range
 import org.eclipse.lsp4j.TextDocumentIdentifier
+import org.junit.Assert.*
 import org.junit.Test
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
 
 class NoMainResolve : SingleFileTestFixture("resolvemain", "NoMain.kt") {
     @Test

@@ -4,6 +4,6 @@ private class DocumentSymbols() {
     fun aFunction(aFunctionArg: Int) {
     }
 
-    constructor(aConstructorArg: Int): this() {
+    constructor(aConstructorArg: Int) : this() {
     }
 }

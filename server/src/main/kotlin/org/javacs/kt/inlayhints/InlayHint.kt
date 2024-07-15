@@ -14,15 +14,7 @@ import org.javacs.kt.util.preOrderTraversal
 import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.lexer.KtTokens.DOT
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.psi.KtCallExpression
-import org.jetbrains.kotlin.psi.KtDestructuringDeclaration
-import org.jetbrains.kotlin.psi.KtDestructuringDeclarationEntry
-import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
-import org.jetbrains.kotlin.psi.KtFunction
-import org.jetbrains.kotlin.psi.KtLambdaArgument
-import org.jetbrains.kotlin.psi.KtNamedFunction
-import org.jetbrains.kotlin.psi.KtProperty
-import org.jetbrains.kotlin.psi.KtParameter
+import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.psi.psiUtil.getChildrenOfType
 import org.jetbrains.kotlin.resolve.BindingContext
@@ -41,15 +33,18 @@ private fun PsiElement.determineType(ctx: BindingContext): KotlinType? =
             val descriptor = ctx[BindingContext.FUNCTION, this]
             descriptor?.returnType
         }
+
         is KtCallExpression -> {
             this.getKotlinTypeForComparison(ctx)
         }
+
         is KtParameter -> {
             if (this.isLambdaParameter and (this.typeReference == null)) {
                 val descriptor = ctx[BindingContext.DECLARATION_TO_DESCRIPTOR, this] as CallableDescriptor
                 descriptor.returnType
             } else null
         }
+
         is KtDestructuringDeclarationEntry -> {
             //skip unused variable denoted by underscore
             //https://kotlinlang.org/docs/destructuring-declarations.html#underscore-for-unused-variables
@@ -60,16 +55,18 @@ private fun PsiElement.determineType(ctx: BindingContext): KotlinType? =
                 resolvedCall?.resultingDescriptor?.returnType
             }
         }
+
         is KtProperty -> {
             val type = this.getKotlinTypeForComparison(ctx)
             if (type is ErrorType) null else type
         }
+
         else -> null
     }
 
 @Suppress("ReturnCount")
 private fun PsiElement.hintBuilder(kind: InlayKind, file: CompiledFile, label: String? = null): InlayHint? {
-    val element = when(this) {
+    val element = when (this) {
         is KtFunction -> this.valueParameterList!!.originalElement
         is PsiNameIdentifierOwner -> this.nameIdentifier
         else -> this
@@ -77,10 +74,10 @@ private fun PsiElement.hintBuilder(kind: InlayKind, file: CompiledFile, label: S
 
     val range = range(file.parse.text, element.textRange)
 
-    val hint = when(kind) {
+    val hint = when (kind) {
         InlayKind.ParameterHint -> InlayHint(range.start, Either.forLeft("$label:"))
         else ->
-            this.determineType(file.compile) ?.let {
+            this.determineType(file.compile)?.let {
                 InlayHint(range.end, Either.forLeft(DECL_RENDERER.renderType(it)))
             } ?: return null
     }

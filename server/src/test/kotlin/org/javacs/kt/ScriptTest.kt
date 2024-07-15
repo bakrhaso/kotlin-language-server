@@ -7,7 +7,8 @@ import org.junit.Test
 class ScriptTest : LanguageServerTestFixture("script", Configuration().apply {
     scripts.enabled = true
 }) {
-    @Test fun `open script`() {
+    @Test
+    fun `open script`() {
         open("ExampleScript.kts")
     }
 }
@@ -15,7 +16,8 @@ class ScriptTest : LanguageServerTestFixture("script", Configuration().apply {
 class EditFunctionTest : SingleFileTestFixture("script", "FunctionScript.kts", Configuration().apply {
     scripts.enabled = true
 }) {
-    @Test fun `edit a function in a script`() {
+    @Test
+    fun `edit a function in a script`() {
         replace("FunctionScript.kts", 3, 18, "2", "f")
 
         val completions = languageServer.textDocumentService.completion(completionParams(file, 3, 19)).get().right!!

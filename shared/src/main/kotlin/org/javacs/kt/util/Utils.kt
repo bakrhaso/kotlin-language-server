@@ -47,9 +47,9 @@ fun String.partitionAroundLast(separator: String): Pair<String, String> = lastIn
     .let { Pair(substring(0, it), substring(it, length)) }
 
 fun Path.replaceExtensionWith(newExtension: String): Path {
-	val oldName = fileName.toString()
-	val newName = oldName.substring(0, oldName.lastIndexOf(".")) + newExtension
-	return resolveSibling(newName)
+    val oldName = fileName.toString()
+    val newName = oldName.substring(0, oldName.lastIndexOf(".")) + newExtension
+    return resolveSibling(newName)
 }
 
 inline fun <T, C : Iterable<T>> C.onEachIndexed(transform: (index: Int, T) -> Unit): C = apply {
@@ -65,7 +65,8 @@ fun <T> noResult(message: String, result: T): T {
     return result
 }
 
-fun <T> noFuture(message: String, contents: T): CompletableFuture<T> = noResult(message, CompletableFuture.completedFuture(contents))
+fun <T> noFuture(message: String, contents: T): CompletableFuture<T> =
+    noResult(message, CompletableFuture.completedFuture(contents))
 
 fun <T> emptyResult(message: String): List<T> = noResult(message, emptyList())
 

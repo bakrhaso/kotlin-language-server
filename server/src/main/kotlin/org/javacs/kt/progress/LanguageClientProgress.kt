@@ -1,15 +1,10 @@
 package org.javacs.kt.progress
 
-import org.eclipse.lsp4j.services.LanguageClient
+import org.eclipse.lsp4j.*
 import org.eclipse.lsp4j.jsonrpc.messages.Either
-import org.eclipse.lsp4j.ProgressParams
-import org.eclipse.lsp4j.WorkDoneProgressNotification
-import org.eclipse.lsp4j.WorkDoneProgressBegin
-import org.eclipse.lsp4j.WorkDoneProgressReport
-import org.eclipse.lsp4j.WorkDoneProgressEnd
-import org.eclipse.lsp4j.WorkDoneProgressCreateParams
+import org.eclipse.lsp4j.services.LanguageClient
+import java.util.*
 import java.util.concurrent.CompletableFuture
-import java.util.UUID
 
 class LanguageClientProgress(
     private val label: String,

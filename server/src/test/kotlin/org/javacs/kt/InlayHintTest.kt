@@ -2,19 +2,13 @@ package org.javacs.kt
 
 import org.eclipse.lsp4j.InlayHint
 import org.eclipse.lsp4j.Position
-import org.hamcrest.Matchers.isIn
-import org.hamcrest.Matchers.hasSize
-import org.hamcrest.Matchers.everyItem
-import org.hamcrest.Matchers.containsString
-import org.hamcrest.Matchers.equalTo
-import org.junit.Assert.assertThat
-import org.junit.Assert.assertTrue
-import org.junit.Assert.assertEquals
+import org.hamcrest.Matchers.*
+import org.junit.Assert.*
 import org.junit.Test
 
 
-private fun predicate(pos: Position, label: String) = {
-    hint: InlayHint -> hint.position == pos && hint.label.left.contains(label)
+private fun predicate(pos: Position, label: String) = { hint: InlayHint ->
+    hint.position == pos && hint.label.left.contains(label)
 }
 
 private fun nPredicateFilter(
@@ -28,7 +22,7 @@ private fun nPredicateFilter(
 
 class InlayHintDeclarationTest : SingleFileTestFixture("inlayhints", "Declarations.kt") {
 
-    private val hints = languageServer.textDocumentService.inlayHint(inlayHintParams(file,  range(0, 0, 0, 0))).get()
+    private val hints = languageServer.textDocumentService.inlayHint(inlayHintParams(file, range(0, 0, 0, 0))).get()
 
     @Test
     fun `lambda declaration hints`() {
@@ -86,7 +80,7 @@ class InlayHintDeclarationTest : SingleFileTestFixture("inlayhints", "Declaratio
 
 class InlayHintCallableParameterTest : SingleFileTestFixture("inlayhints", "Parameters.kt") {
 
-    private val hints = languageServer.textDocumentService.inlayHint(inlayHintParams(file,  range(0, 0, 0, 0))).get()
+    private val hints = languageServer.textDocumentService.inlayHint(inlayHintParams(file, range(0, 0, 0, 0))).get()
 
     @Test
     fun `class parameter hints`() {
@@ -109,7 +103,7 @@ class InlayHintCallableParameterTest : SingleFileTestFixture("inlayhints", "Para
     }
 
     @Test
-    fun `mixed parameter types`(){
+    fun `mixed parameter types`() {
         val predicates = listOf(
             predicate(Position(17, 14), "d"),
             predicate(Position(17, 19), "p1"),
@@ -133,7 +127,7 @@ class InlayHintCallableParameterTest : SingleFileTestFixture("inlayhints", "Para
 
 class InlayHintChainedTest : SingleFileTestFixture("inlayhints", "ChainedMethods.kt") {
 
-    private val hints = languageServer.textDocumentService.inlayHint(inlayHintParams(file,  range(0, 0, 0, 0))).get()
+    private val hints = languageServer.textDocumentService.inlayHint(inlayHintParams(file, range(0, 0, 0, 0))).get()
 
     @Test
     fun `chained hints`() {

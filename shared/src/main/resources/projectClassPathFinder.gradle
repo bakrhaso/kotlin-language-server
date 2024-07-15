@@ -62,7 +62,7 @@ allprojects { project ->
 
             // handle kotlin multiplatform style dependencies if any
             def kotlinExtension = project.extensions.findByName("kotlin")
-            if(kotlinExtension && kotlinExtension.hasProperty("targets")) {
+            if (kotlinExtension && kotlinExtension.hasProperty("targets")) {
                 def kotlinSourceSets = kotlinExtension.sourceSets
 
                 // Print the list of all dependencies jar files.

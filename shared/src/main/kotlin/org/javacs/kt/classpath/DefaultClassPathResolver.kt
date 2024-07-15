@@ -37,17 +37,21 @@ private fun ignoredPathPatterns(root: Path, gitignore: Path): List<PathMatcher> 
         ?.map { it.trim() }
         ?.filter { it.isNotEmpty() && !it.startsWith("#") }
         ?.map { it.removeSuffix("/") }
-        ?.let { it + listOf(
-            // Patterns that are ignored by default
-            ".git"
-        ) }
-        ?.mapNotNull { try {
-            LOG.debug("Adding ignore pattern '{}' from {}", it, gitignore)
-            FileSystems.getDefault().getPathMatcher("glob:$root**/$it")
-        } catch (e: Exception) {
-            LOG.warn("Did not recognize gitignore pattern: '{}' ({})", it, e.message)
-            null
-        } }
+        ?.let {
+            it + listOf(
+                // Patterns that are ignored by default
+                ".git"
+            )
+        }
+        ?.mapNotNull {
+            try {
+                LOG.debug("Adding ignore pattern '{}' from {}", it, gitignore)
+                FileSystems.getDefault().getPathMatcher("glob:$root**/$it")
+            } catch (e: Exception) {
+                LOG.warn("Did not recognize gitignore pattern: '{}' ({})", it, e.message)
+                null
+            }
+        }
         ?: emptyList()
 
 /** Tries to create a classpath resolver from a file using as many sources as possible */

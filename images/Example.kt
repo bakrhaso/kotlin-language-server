@@ -1,4 +1,3 @@
-
 fun example() = "Hello world!"
 
 fun otherFun() = example()

@@ -2,10 +2,7 @@ package org.javacs.kt
 
 import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.Range
-import org.hamcrest.Matchers.containsString
-import org.hamcrest.Matchers.equalTo
-import org.hamcrest.Matchers.hasItem
-import org.hamcrest.Matchers.hasSize
+import org.hamcrest.Matchers.*
 import org.junit.Assert.assertThat
 import org.junit.Test
 

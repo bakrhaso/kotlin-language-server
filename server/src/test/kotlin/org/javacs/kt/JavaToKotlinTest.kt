@@ -1,15 +1,17 @@
 package org.javacs.kt
 
+import org.hamcrest.Matchers.equalTo
 import org.javacs.kt.j2k.convertJavaToKotlin
-import org.junit.Test
 import org.junit.Assert.assertThat
 import org.junit.Ignore
-import org.hamcrest.Matchers.equalTo
+import org.junit.Test
 
 class JavaToKotlinTest : LanguageServerTestFixture("j2k") {
     // TODO: Seems to throw the same exception as
     // https://github.com/Kotlin/dokka/issues/1660 currently
-    @Ignore @Test fun `test j2k conversion`() {
+    @Ignore
+    @Test
+    fun `test j2k conversion`() {
         val javaCode = workspaceRoot
             .resolve("JavaJSONConverter.java")
             .toFile()

@@ -6,18 +6,22 @@ interface Printable {
     }
 }
 
-class MyPrintable: Printable {}
+class MyPrintable : Printable {}
 
-class OtherPrintable: Printable {
+class OtherPrintable : Printable {
     override val text: String = "you had me at lasagna"
 }
 
-class CompletePrintable: Printable {
+class CompletePrintable : Printable {
     override val text: String = "something something something darkside"
 
-    override fun equals(other: Any?): Boolean { return true }
+    override fun equals(other: Any?): Boolean {
+        return true
+    }
 
-    override fun hashCode(): Int { return 1 }
+    override fun hashCode(): Int {
+        return 1
+    }
 
     override fun toString(): String {
         return "something something complete"
@@ -34,6 +38,6 @@ open class MyOpen {
     }
 }
 
-class Closed: MyOpen() {}
+class Closed : MyOpen() {}
 
-class MyThread: Thread {}
+class MyThread : Thread {}

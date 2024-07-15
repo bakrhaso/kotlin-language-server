@@ -1,6 +1,8 @@
 class Q {
     fun cmpA(): Double = 1.0
-    infix fun cmpB(x: Int): Int { return 1 }
+    infix fun cmpB(x: Int): Int {
+        return 1
+    }
 }
 
 infix fun Int.funcA(x: Int): Boolean = x == this
@@ -20,6 +22,7 @@ private fun extensionFunc() {
 }
 
 enum class FOO { T, U }
+
 infix fun FOO.ord(n: Int) = this.ordinal == n
 
 private fun globalEnumFunc() {

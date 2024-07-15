@@ -2,10 +2,10 @@ package org.javacs.kt
 
 import org.eclipse.lsp4j.DocumentHighlightKind
 import org.eclipse.lsp4j.DocumentHighlightParams
-import org.eclipse.lsp4j.TextDocumentIdentifier
 import org.eclipse.lsp4j.Position
-import org.hamcrest.Matchers.hasSize
+import org.eclipse.lsp4j.TextDocumentIdentifier
 import org.hamcrest.Matchers.equalTo
+import org.hamcrest.Matchers.hasSize
 import org.junit.Assert.assertThat
 import org.junit.Test
 

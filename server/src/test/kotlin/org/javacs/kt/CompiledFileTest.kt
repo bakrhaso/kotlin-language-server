@@ -5,8 +5,8 @@ import org.javacs.kt.compiler.Compiler
 import org.javacs.kt.database.DatabaseService
 import org.junit.AfterClass
 import org.junit.Assert.assertThat
-import org.junit.Test
 import org.junit.BeforeClass
+import org.junit.Test
 import java.io.File
 import java.nio.file.Files
 
@@ -16,12 +16,16 @@ class CompiledFileTest {
     companion object {
         lateinit var outputDirectory: File
 
-        @JvmStatic @BeforeClass fun setup() {
+        @JvmStatic
+        @BeforeClass
+        fun setup() {
             LOG.connectStdioBackend()
             outputDirectory = Files.createTempDirectory("klsBuildOutput").toFile()
         }
 
-        @JvmStatic @AfterClass fun tearDown() {
+        @JvmStatic
+        @AfterClass
+        fun tearDown() {
             outputDirectory.delete()
         }
     }
@@ -41,7 +45,8 @@ class CompiledFileTest {
         CompiledFile(content, parse, context, container, sourcePath, classPath)
     }
 
-    @Test fun `typeAtPoint should return type for x`() {
+    @Test
+    fun `typeAtPoint should return type for x`() {
         val type = compiledFile.typeAtPoint(87)!!
 
         assertThat(type.toString(), equalTo("Int"))

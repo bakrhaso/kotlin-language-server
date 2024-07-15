@@ -1,11 +1,5 @@
 package org.javacs.kt.index
 
-import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.kotlin.descriptors.ModuleDescriptor
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
-import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
-import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
-import org.jetbrains.kotlin.name.FqName
 import org.javacs.kt.LOG
 import org.javacs.kt.database.DatabaseService
 import org.javacs.kt.progress.Progress
@@ -14,6 +8,12 @@ import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.descriptors.ModuleDescriptor
+import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
+import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import kotlin.sequences.Sequence
 
 private const val MAX_FQNAME_LENGTH = 255
@@ -183,21 +183,27 @@ class SymbolIndex(
         fqName.toString().length <= MAX_FQNAME_LENGTH
             && fqName.shortName().toString().length <= MAX_SHORT_NAME_LENGTH
 
-    fun query(prefix: String, receiverType: FqName? = null, limit: Int = 20, suffix: String = "%"): List<Symbol> = transaction(db) {
-        // TODO: Extension completion currently only works if the receiver matches exactly,
-        //       ideally this should work with subtypes as well
-        SymbolEntity.find {
-            (Symbols.shortName like "$prefix$suffix") and (Symbols.extensionReceiverType eq receiverType?.toString())
-        }.limit(limit)
-            .map { Symbol(
-                fqName = FqName(it.fqName),
-                kind = Symbol.Kind.fromRaw(it.kind),
-                visibility = Symbol.Visibility.fromRaw(it.visibility),
-                extensionReceiverType = it.extensionReceiverType?.let(::FqName)
-            ) }
-    }
+    fun query(prefix: String, receiverType: FqName? = null, limit: Int = 20, suffix: String = "%"): List<Symbol> =
+        transaction(db) {
+            // TODO: Extension completion currently only works if the receiver matches exactly,
+            //       ideally this should work with subtypes as well
+            SymbolEntity.find {
+                (Symbols.shortName like "$prefix$suffix") and (Symbols.extensionReceiverType eq receiverType?.toString())
+            }.limit(limit)
+                .map {
+                    Symbol(
+                        fqName = FqName(it.fqName),
+                        kind = Symbol.Kind.fromRaw(it.kind),
+                        visibility = Symbol.Visibility.fromRaw(it.visibility),
+                        extensionReceiverType = it.extensionReceiverType?.let(::FqName)
+                    )
+                }
+        }
 
-    private fun allDescriptors(module: ModuleDescriptor, exclusions: Sequence<DeclarationDescriptor>): Sequence<DeclarationDescriptor> = allPackages(module)
+    private fun allDescriptors(
+        module: ModuleDescriptor,
+        exclusions: Sequence<DeclarationDescriptor>
+    ): Sequence<DeclarationDescriptor> = allPackages(module)
         .map(module::getPackage)
         .flatMap {
             try {

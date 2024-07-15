@@ -9,28 +9,21 @@ import org.javacs.kt.completion.completions
 import org.javacs.kt.definition.goToDefinition
 import org.javacs.kt.diagnostic.convertDiagnostic
 import org.javacs.kt.formatting.FormattingService
+import org.javacs.kt.highlight.documentHighlightsAt
 import org.javacs.kt.hover.hoverAt
-import org.javacs.kt.position.offset
+import org.javacs.kt.inlayhints.provideHints
 import org.javacs.kt.position.extractRange
+import org.javacs.kt.position.offset
 import org.javacs.kt.position.position
 import org.javacs.kt.references.findReferences
+import org.javacs.kt.rename.renameSymbol
 import org.javacs.kt.semantictokens.encodedSemanticTokens
 import org.javacs.kt.signaturehelp.fetchSignatureHelpAt
-import org.javacs.kt.rename.renameSymbol
-import org.javacs.kt.highlight.documentHighlightsAt
-import org.javacs.kt.inlayhints.provideHints
 import org.javacs.kt.symbols.documentSymbols
-import org.javacs.kt.util.AsyncExecutor
-import org.javacs.kt.util.Debouncer
-import org.javacs.kt.util.TemporaryDirectory
-import org.javacs.kt.util.describeURI
-import org.javacs.kt.util.describeURIs
-import org.javacs.kt.util.filePath
-import org.javacs.kt.util.noResult
-import org.javacs.kt.util.parseURI
+import org.javacs.kt.util.*
 import org.jetbrains.kotlin.resolve.diagnostics.Diagnostics
-import java.net.URI
 import java.io.Closeable
+import java.net.URI
 import java.nio.file.Path
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
@@ -53,7 +46,9 @@ class KotlinTextDocumentService(
 
     var lintRecompilationCallback: () -> Unit
         get() = sp.beforeCompileCallback
-        set(callback) { sp.beforeCompileCallback = callback }
+        set(callback) {
+            sp.beforeCompileCallback = callback
+        }
 
     private val TextDocumentItem.filePath: Path?
         get() = parseURI(uri).filePath
@@ -96,13 +91,16 @@ class KotlinTextDocumentService(
         return Pair(compiled, offset)
     }
 
-    override fun codeAction(params: CodeActionParams): CompletableFuture<List<Either<Command, CodeAction>>> = async.compute {
-        val (file, _) = recover(params.textDocument.uri, params.range.start, Recompile.NEVER) ?: return@compute emptyList()
-        codeActions(file, sp.index, params.range, params.context)
-    }
+    override fun codeAction(params: CodeActionParams): CompletableFuture<List<Either<Command, CodeAction>>> =
+        async.compute {
+            val (file, _) = recover(params.textDocument.uri, params.range.start, Recompile.NEVER)
+                ?: return@compute emptyList()
+            codeActions(file, sp.index, params.range, params.context)
+        }
 
     override fun inlayHint(params: InlayHintParams): CompletableFuture<List<InlayHint>> = async.compute {
-        val (file, _) = recover(params.textDocument.uri, params.range.start, Recompile.ALWAYS) ?: return@compute emptyList()
+        val (file, _) = recover(params.textDocument.uri, params.range.start, Recompile.ALWAYS)
+            ?: return@compute emptyList()
         provideHints(file, config.inlayHints)
     }
 
@@ -115,34 +113,50 @@ class KotlinTextDocumentService(
         }
     }
 
-    override fun documentHighlight(position: DocumentHighlightParams): CompletableFuture<List<DocumentHighlight>> = async.compute {
-        val (file, cursor) = recover(position.textDocument.uri, position.position, Recompile.NEVER) ?: return@compute emptyList()
-        documentHighlightsAt(file, cursor)
-    }
+    override fun documentHighlight(position: DocumentHighlightParams): CompletableFuture<List<DocumentHighlight>> =
+        async.compute {
+            val (file, cursor) = recover(position.textDocument.uri, position.position, Recompile.NEVER)
+                ?: return@compute emptyList()
+            documentHighlightsAt(file, cursor)
+        }
 
     override fun onTypeFormatting(params: DocumentOnTypeFormattingParams): CompletableFuture<List<TextEdit>> {
         TODO("not implemented")
     }
 
-    override fun definition(position: DefinitionParams): CompletableFuture<Either<List<Location>, List<LocationLink>>> = async.compute {
-        reportTime {
-            LOG.info("Go-to-definition at {}", describePosition(position))
+    override fun definition(position: DefinitionParams): CompletableFuture<Either<List<Location>, List<LocationLink>>> =
+        async.compute {
+            reportTime {
+                LOG.info("Go-to-definition at {}", describePosition(position))
 
-            val (file, cursor) = recover(position, Recompile.NEVER) ?: return@compute Either.forLeft(emptyList())
-            goToDefinition(file, cursor, uriContentProvider.classContentProvider, tempDirectory, config.externalSources, cp)
-                ?.let(::listOf)
-                ?.let { Either.forLeft<List<Location>, List<LocationLink>>(it) }
-                ?: noResult("Couldn't find definition at ${describePosition(position)}", Either.forLeft(emptyList()))
+                val (file, cursor) = recover(position, Recompile.NEVER) ?: return@compute Either.forLeft(emptyList())
+                goToDefinition(
+                    file,
+                    cursor,
+                    uriContentProvider.classContentProvider,
+                    tempDirectory,
+                    config.externalSources,
+                    cp
+                )
+                    ?.let(::listOf)
+                    ?.let { Either.forLeft<List<Location>, List<LocationLink>>(it) }
+                    ?: noResult(
+                        "Couldn't find definition at ${describePosition(position)}",
+                        Either.forLeft(emptyList())
+                    )
+            }
         }
-    }
 
-    override fun rangeFormatting(params: DocumentRangeFormattingParams): CompletableFuture<List<TextEdit>> = async.compute {
-        val code = extractRange(params.textDocument.content, params.range)
-        listOf(TextEdit(
-            params.range,
-            formattingService.formatKotlinCode(code, params.options)
-        ))
-    }
+    override fun rangeFormatting(params: DocumentRangeFormattingParams): CompletableFuture<List<TextEdit>> =
+        async.compute {
+            val code = extractRange(params.textDocument.content, params.range)
+            listOf(
+                TextEdit(
+                    params.range,
+                    formattingService.formatKotlinCode(code, params.options)
+                )
+            )
+        }
 
     override fun codeLens(params: CodeLensParams): CompletableFuture<List<CodeLens>> {
         TODO("not implemented")
@@ -153,33 +167,36 @@ class KotlinTextDocumentService(
         renameSymbol(file, cursor, sp, params.newName)
     }
 
-    override fun completion(position: CompletionParams): CompletableFuture<Either<List<CompletionItem>, CompletionList>> = async.compute {
-        reportTime {
-            LOG.info("Completing at {}", describePosition(position))
+    override fun completion(position: CompletionParams): CompletableFuture<Either<List<CompletionItem>, CompletionList>> =
+        async.compute {
+            reportTime {
+                LOG.info("Completing at {}", describePosition(position))
 
-            val (file, cursor) = recover(position, Recompile.NEVER) ?: return@compute Either.forRight(CompletionList()) // TODO: Investigate when to recompile
-            val completions = completions(file, cursor, sp.index, config.completion)
-            LOG.info("Found {} items", completions.items.size)
+                val (file, cursor) = recover(position, Recompile.NEVER)
+                    ?: return@compute Either.forRight(CompletionList()) // TODO: Investigate when to recompile
+                val completions = completions(file, cursor, sp.index, config.completion)
+                LOG.info("Found {} items", completions.items.size)
 
-            Either.forRight(completions)
+                Either.forRight(completions)
+            }
         }
-    }
 
     override fun resolveCompletionItem(unresolved: CompletionItem): CompletableFuture<CompletionItem> {
         TODO("not implemented")
     }
 
     @Suppress("DEPRECATION")
-    override fun documentSymbol(params: DocumentSymbolParams): CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>> = async.compute {
-        LOG.info("Find symbols in {}", describeURI(params.textDocument.uri))
+    override fun documentSymbol(params: DocumentSymbolParams): CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>> =
+        async.compute {
+            LOG.info("Find symbols in {}", describeURI(params.textDocument.uri))
 
-        reportTime {
-            val uri = parseURI(params.textDocument.uri)
-            val parsed = sp.parsedFile(uri)
+            reportTime {
+                val uri = parseURI(params.textDocument.uri)
+                val parsed = sp.parsedFile(uri)
 
-            documentSymbols(parsed)
+                documentSymbols(parsed)
+            }
         }
-    }
 
     override fun didOpen(params: DidOpenTextDocumentParams) {
         val uri = parseURI(params.textDocument.uri)
@@ -201,7 +218,10 @@ class KotlinTextDocumentService(
             LOG.info("Signature help at {}", describePosition(position))
 
             val (file, cursor) = recover(position, Recompile.NEVER) ?: return@compute null
-            fetchSignatureHelpAt(file, cursor) ?: noResult("No function call around ${describePosition(position)}", null)
+            fetchSignatureHelpAt(file, cursor) ?: noResult(
+                "No function call around ${describePosition(position)}",
+                null
+            )
         }
     }
 
@@ -214,10 +234,12 @@ class KotlinTextDocumentService(
     override fun formatting(params: DocumentFormattingParams): CompletableFuture<List<TextEdit>> = async.compute {
         val code = params.textDocument.content
         LOG.info("Formatting {}", describeURI(params.textDocument.uri))
-        listOf(TextEdit(
-            Range(Position(0, 0), position(code, code.length)),
-            formattingService.formatKotlinCode(code, params.options)
-        ))
+        listOf(
+            TextEdit(
+                Range(Position(0, 0), position(code, code.length)),
+                formattingService.formatKotlinCode(code, params.options)
+            )
+        )
     }
 
     override fun didChange(params: DidChangeTextDocumentParams) {
@@ -320,8 +342,7 @@ class KotlinTextDocumentService(
                 client.publishDiagnostics(PublishDiagnosticsParams(uri.toString(), diagnostics))
 
                 LOG.info("Reported {} diagnostics in {}", diagnostics.size, describeURI(uri))
-            }
-            else LOG.info("Ignore {} diagnostics in {} because it's not open", diagnostics.size, describeURI(uri))
+            } else LOG.info("Ignore {} diagnostics in {} because it's not open", diagnostics.size, describeURI(uri))
         }
 
         val noErrors = compiled - byFile.keys
@@ -348,7 +369,7 @@ class KotlinTextDocumentService(
     }
 }
 
-private inline fun<T> reportTime(block: () -> T): T {
+private inline fun <T> reportTime(block: () -> T): T {
     val started = System.currentTimeMillis()
     try {
         return block()

@@ -4,11 +4,11 @@
     <artifactId>fernflower</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
-    
+
     <name>Fernflower Decompiler</name>
     <description>An open-source decompiler.</description>
     <url>https://github.com/JetBrains/intellij-community/tree/master/plugins/java-decompiler/engine</url>
-    
+
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>

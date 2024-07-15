@@ -1,11 +1,14 @@
 package org.javacs.kt
 
-import org.junit.*
-import org.junit.Assert.*
-import kotlin.script.experimental.api.*
-import kotlin.script.experimental.jvm.jvm
-import kotlin.script.experimental.jvm.dependenciesFromCurrentContext
+import org.junit.Assert.fail
+import org.junit.Test
 import kotlin.script.experimental.annotations.KotlinScript
+import kotlin.script.experimental.api.EvaluationResult
+import kotlin.script.experimental.api.ResultValue
+import kotlin.script.experimental.api.ResultWithDiagnostics
+import kotlin.script.experimental.api.SourceCode
+import kotlin.script.experimental.jvm.dependenciesFromCurrentContext
+import kotlin.script.experimental.jvm.jvm
 import kotlin.script.experimental.jvmhost.BasicJvmScriptingHost
 import kotlin.script.experimental.jvmhost.createJvmCompilationConfigurationFromTemplate
 

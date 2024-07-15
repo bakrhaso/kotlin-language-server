@@ -8,9 +8,9 @@ import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.Range
 import org.javacs.kt.LOG
 import org.javacs.kt.util.toPath
-import org.jetbrains.kotlin.descriptors.SourceFile
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithSource
+import org.jetbrains.kotlin.descriptors.SourceFile
 import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
 import org.jetbrains.kotlin.resolve.source.PsiSourceFile
 import kotlin.math.max
@@ -85,7 +85,7 @@ fun position(content: String, offset: Int): Position {
 }
 
 fun range(content: String, range: TextRange) =
-        Range(position(content, range.startOffset), position(content, range.endOffset))
+    Range(position(content, range.startOffset), position(content, range.endOffset))
 
 fun location(declaration: DeclarationDescriptor): Location? {
     val psiLocation = declaration.findPsi()?.let(::location)
@@ -98,6 +98,7 @@ fun location(declaration: DeclarationDescriptor): Location? {
                 val file = sourceFile.psiFile.toURIString()
                 return Location(file, Range(Position(0, 0), Position(0, 0)))
             }
+
             SourceFile.NO_SOURCE_FILE -> Unit // If no source file is present, do nothing
             else -> LOG.info("Source type of {} not recognized", sourceFile)
         }
@@ -115,7 +116,11 @@ val Range.isZero: Boolean
     get() = start.isZero && end.isZero
 
 fun location(expr: PsiElement): Location? {
-    val content = try { expr.containingFile?.text } catch (e: NullPointerException) { null }
+    val content = try {
+        expr.containingFile?.text
+    } catch (e: NullPointerException) {
+        null
+    }
     val file = expr.containingFile.toURIString()
     return content?.let { Location(file, range(it, expr.textRange)) }
 }
