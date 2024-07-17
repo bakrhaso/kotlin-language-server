@@ -293,7 +293,7 @@ class KotlinTextDocumentService(
         return "${describeURI(position.textDocument.uri)} ${position.position.line + 1}:${position.position.character + 1}"
     }
 
-    public fun updateDebouncer() {
+    fun updateDebouncer() {
         debounceLint = Debouncer(Duration.ofMillis(config.diagnostics.debounceTime))
     }
 

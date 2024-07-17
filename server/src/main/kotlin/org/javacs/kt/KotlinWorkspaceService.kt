@@ -91,7 +91,6 @@ class KotlinWorkspaceService(
         }
     }
 
-    @Suppress("LongMethod", "CyclomaticComplexMethod", "NestedBlockDepth")
     override fun didChangeConfiguration(params: DidChangeConfigurationParams) {
         val settings = params.settings as? JsonObject
         settings?.get("kotlin")?.asJsonObject?.apply {
