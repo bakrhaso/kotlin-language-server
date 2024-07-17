@@ -1,5 +1,6 @@
 package org.javacs.kt
 
+import com.google.gson.JsonObject
 import org.eclipse.lsp4j.*
 import org.eclipse.lsp4j.jsonrpc.messages.Either
 import org.eclipse.lsp4j.jsonrpc.services.JsonDelegate
@@ -107,6 +108,12 @@ class KotlinLanguageServer(
         serverCapabilities.documentRangeFormattingProvider = Either.forLeft(true)
         serverCapabilities.executeCommandProvider = ExecuteCommandOptions(ALL_COMMANDS)
         serverCapabilities.documentHighlightProvider = Either.forLeft(true)
+
+        // some editors send settings in the initialize request
+        val initializationOptions = params.initializationOptions as? JsonObject
+        initializationOptions?.getAsJsonObject("settings")?.let {
+            workspaceService.updateConfiguration(it)
+        }
 
         val storagePath = getStoragePath(params)
         databaseService.setup(storagePath)
